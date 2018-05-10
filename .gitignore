@@ -1,0 +1,5 @@
+# ignore db files
+*.sql
+
+# ignore vs files
+.vscode/
