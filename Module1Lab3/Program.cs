@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            Module2Helper.LinqVsLambda();
+            Module2Helper.SelfAssessment();
         }
     }
 }

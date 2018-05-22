@@ -11,6 +11,10 @@ namespace MovieApp.Entities
         public virtual DbSet<Film> Films { get; set; }
         public virtual DbSet<FilmActor> FilmActors { get; set; }
         public virtual DbSet<FilmCategory> FilmCategories { get; set; }
+        // Added table
+        public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        // Added table with a composite key
+        public virtual DbSet<FilmInfo> FilmInfos { get; set; }
 
         private static MoviesContext _context;
         public static MoviesContext Instance
@@ -29,7 +33,7 @@ namespace MovieApp.Entities
         {
             if (!optionsBuilder.IsConfigured)
             {
-// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseMySql("server=localhost;userid=root;pwd=123456;port=3306;database=Movies;sslmode=none;");
             }
         }
@@ -78,6 +82,9 @@ namespace MovieApp.Entities
                 entity.Property(e => e.Title)
                     .IsRequired()
                     .HasMaxLength(255);
+
+                entity.HasIndex(e => e.Rating)
+                    .HasName("film_rating_index");
             });
 
             modelBuilder.Entity<FilmActor>(entity =>
@@ -130,6 +137,11 @@ namespace MovieApp.Entities
                     .HasForeignKey(d => d.FilmId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("film_category_film_fk");
+            });
+
+            modelBuilder.Entity<FilmInfo>(entity =>
+            {
+                entity.HasKey(e => new { e.Title, e.ReleaseYear });
             });
         }
     }

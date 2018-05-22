@@ -216,5 +216,105 @@ namespace MovieApp
                         (f, r) => new { f.Title, r.Code, r.Name });
             ConsoleTable.From(joinedFilms).Write();
         }
+
+        public static void MigrationAddColumn()
+        {
+            var film = MoviesContext.Instance.Films
+                .FirstOrDefault(f => f.Title.Contains("the first avenger"));
+            if (film != null)
+            {
+                Console.WriteLine($"Updating film with id {film.FilmId}");
+                film.Runtime = 124;
+                MoviesContext.Instance.SaveChanges();
+            }
+
+            var films = MoviesContext.Instance.Films
+                            .Select(f => f.Copy<Film, FilmModel>());
+            ConsoleTable.From(films).Write();
+        }
+
+        public static void MigrationAddTable()
+        {
+            var user = new ApplicationUser
+            {
+                UserName = "testuser",
+                InvalidLoginAttempts = 0
+            };
+
+            MoviesContext.Instance.ApplicationUsers.Add(user);
+            MoviesContext.Instance.SaveChanges();
+
+            var users = MoviesContext.Instance.ApplicationUsers;
+            ConsoleTable.From(users).Write();
+        }
+
+        public static void CompositeKeys()
+        {
+            var data = new[] {
+                new FilmInfo { Title = "Thor", ReleaseYear = 2011, Rating = "PG-13" },
+                new FilmInfo { Title = "The Avengers", ReleaseYear = 2012, Rating = "PG-13" },
+                new FilmInfo { Title = "Rogue One", ReleaseYear = 2016, Rating = "PG-13" }
+            };
+
+            //MoviesContext.Instance.FilmInfos.AddRange(data);
+            //MoviesContext.Instance.SaveChanges();
+
+            var infos = MoviesContext.Instance.FilmInfos;
+            ConsoleTable.From(infos).Write();
+        }
+
+        public static void SelfAssessment()
+        {
+            Console.WriteLine("Enter a page size:");
+            var pageSize = Math.Max(1, Console.ReadLine().ToInt());
+
+            Console.WriteLine("Enter a page number:");
+            var pageNumber = Math.Max(1, Console.ReadLine().ToInt());
+
+            Console.WriteLine("Enter a sort column:");
+            Console.WriteLine("\ti - Actor ID");
+            Console.WriteLine("\tf - Firstname");
+            Console.WriteLine("\tl - Lastname");
+            var column = Console.ReadKey();
+            Console.WriteLine();
+
+            Console.WriteLine("Enter a sort order:");
+            Console.WriteLine("\ta - Ascending");
+            Console.WriteLine("\td - Descending");
+            var order = Console.ReadKey();
+            Console.WriteLine();
+
+            Console.WriteLine();
+
+            var queryOrder = order.Key == ConsoleKey.D 
+                        ? MoviesContext.Instance.Actors
+                        .OrderByDescending(GetColumn(column))
+                        : MoviesContext.Instance.Actors
+                        .OrderBy(GetColumn(column));
+            var actors = queryOrder.Skip((pageNumber - 1) * pageSize)
+                        .Take(pageSize)
+                        .Select(a => a.Copy<Actor, ActorModel>());
+            ConsoleTable.From(actors).Write();
+        }
+
+        /// <summary>
+        /// SelfAssessment helper method
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        internal static Expression<Func<Actor, object>> GetColumn(ConsoleKeyInfo info)
+        {
+            switch (info.Key)
+            {
+                case ConsoleKey.I:
+                    return a => a.ActorId;
+                case ConsoleKey.F:
+                    return a => a.FirstName;
+                case ConsoleKey.L:
+                    return a => a.LastName;
+                default:
+                    return a => a.ActorId;
+            }
+        }
     }
 }

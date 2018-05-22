@@ -4,4 +4,6 @@ public class FilmModel
      public string Title { get; set; }
      public int? ReleaseYear { get; set; }
      public string Rating { get; set; }
+     // Added property
+     public int? Runtime { get; set; }
  }
