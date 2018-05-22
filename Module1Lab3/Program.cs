@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            Module2Helper.Paging();
+            Module2Helper.LinqVsLambda();
         }
     }
 }

@@ -96,5 +96,125 @@ namespace MovieApp
                     return f => f.Title;
             }
         }
+
+        public static void LinqBasics()
+        {
+            var search = "ar";
+            var actors = (from a in MoviesContext.Instance.Actors
+                          where a.FirstName.Contains(search)
+                          orderby a.FirstName descending
+                          select a.Copy<Actor, ActorModel>());
+            ConsoleTable.From(actors).Write();
+        }
+
+        public static void LambdaBasics()
+        {
+            var search = "g";
+            var films = MoviesContext.Instance.Films
+                        .Where(f => f.Title.Contains(search))
+                        .OrderByDescending(f => f.Title)
+                        .Select(f => f.Copy<Film, FilmModel>());
+            ConsoleTable.From(films).Write();
+        }
+
+        public static void LinqVsLambda()
+        {
+            // LVL simple ordered query
+            var title = "g";
+            var rating = "pg-13";
+            var years = new[] { 2016, 2015, 2012 };
+            Console.WriteLine($"Films with letter {title} in their title, rated {rating}");
+            Console.WriteLine($", filmed in years: {string.Join(", ", years.Select(y => y.ToString()))}");
+            Console.WriteLine();
+            Console.WriteLine("LINQ");
+            var films = (from f in MoviesContext.Instance.Films
+                         where f.Title.Contains(title) &&
+                            f.Rating == rating &&
+                            f.ReleaseYear.HasValue &&
+                            years.Contains(f.ReleaseYear.Value)
+                         orderby f.ReleaseYear descending,
+                            f.Title
+                         select f.Copy<Film, FilmModel>());
+            ConsoleTable.From(films).Write();
+            // Results are identical
+            Console.WriteLine("Lambda");
+            films = MoviesContext.Instance.Films
+                        .Where(f => f.Title.Contains(title) &&
+                            f.Rating == rating &&
+                            f.ReleaseYear.HasValue &&
+                            years.Contains(f.ReleaseYear.Value))
+                        .OrderByDescending(f => f.ReleaseYear)
+                        .ThenBy(f => f.Title)
+                        .Select(f => f.Copy<Film, FilmModel>());
+            ConsoleTable.From(films).Write();
+
+            // LVL Groupings
+            string delimiter = "---------------------------------------------";
+
+            Console.WriteLine();
+            Console.WriteLine(new String('~', delimiter.Length));
+            Console.WriteLine();
+
+            Console.WriteLine("Films grouped by rating");
+            Console.WriteLine();
+
+            Console.WriteLine("LINQ");
+            var filmGroups = (from f in MoviesContext.Instance.Films
+                              group f by f.Rating into g
+                              select g);
+            foreach (var filmGroup in filmGroups)
+            {
+                Console.WriteLine(filmGroup.Key);
+                foreach (var film in filmGroup.OrderBy(f => f.Title))
+                {
+                    Console.WriteLine($"\t{film.Title}");
+                }
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(delimiter);
+            Console.WriteLine();
+
+            Console.WriteLine("Lambda");
+            filmGroups = MoviesContext.Instance.Films
+                            .GroupBy(f => f.Rating);
+            foreach (var filmGroup in filmGroups)
+            {
+                Console.WriteLine(filmGroup.Key);
+                foreach (var film in filmGroup.OrderBy(f => f.Title))
+                {
+                    Console.WriteLine($"\t{film.Title}");
+                }
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(new String('~', delimiter.Length));
+            Console.WriteLine();
+
+            // LVL Joins
+            var ratings = new[] {
+                new { Code = "G", Name = "General Audiences"},
+                new { Code = "PG", Name = "Parental Guidance Suggested"},
+                new { Code = "PG-13", Name = "Parents Strongly Cautioned"},
+                new { Code = "R", Name = "Restricted"},
+            };
+
+            Console.WriteLine($"Films joined with rating names:");
+            Console.WriteLine($"{string.Join(", ", ratings.Select(r => r.Code + "=" + r.Name))}");
+            Console.WriteLine();
+
+            Console.WriteLine("LINQ");
+            var joinedFilms = (from f in MoviesContext.Instance.Films
+                         join r in ratings on f.Rating equals r.Code
+                         select new { f.Title, r.Code, r.Name });
+            ConsoleTable.From(joinedFilms).Write();
+
+            Console.WriteLine("Lambda");
+            joinedFilms = MoviesContext.Instance.Films.Join(ratings,
+                        f => f.Rating,
+                        r => r.Code,
+                        (f, r) => new { f.Title, r.Code, r.Name });
+            ConsoleTable.From(joinedFilms).Write();
+        }
     }
 }
