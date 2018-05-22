@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            Module1Helper.SelectList();
+            Module2Helper.Paging();
         }
     }
 }
