@@ -11,9 +11,10 @@ using System;
 namespace MovieApp.Migrations
 {
     [DbContext(typeof(MoviesContext))]
-    partial class MoviesContextModelSnapshot : ModelSnapshot
+    [Migration("20180528182426_AddedFilmRatingCodeColumn")]
+    partial class AddedFilmRatingCodeColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,10 +177,10 @@ namespace MovieApp.Migrations
                     b.Property<int>("RatingId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Code")
-                        .IsRequired();
-
                     b.Property<string>("Name");
+
+                    b.Property<string>("RatingCode")
+                        .IsRequired();
 
                     b.HasKey("RatingId");
 

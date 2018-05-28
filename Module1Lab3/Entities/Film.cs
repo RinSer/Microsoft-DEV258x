@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MovieApp.Entities
 {
@@ -15,11 +16,21 @@ namespace MovieApp.Entities
         public string Title { get; set; }
         public string Description { get; set; }
         public int? ReleaseYear { get; set; }
-        public string Rating { get; set; }
+
+        public string RatingCode { get; set; }
+        // Added entity relation
+        public int? RatingId { get; set; }
+
+        [ForeignKey(nameof(RatingId))]
+        public Rating Rating { get; set; }
         // Added property
         public int? Runtime { get; set; }
 
         public ICollection<FilmActor> FilmActor { get; set; }
         public ICollection<FilmCategory> FilmCategory { get; set; }
+
+        public int? FilmImageId { get; set; }
+        [ForeignKey(nameof(FilmImageId))]
+        public FilmImage FilmImage { get; set; }
     }
 }

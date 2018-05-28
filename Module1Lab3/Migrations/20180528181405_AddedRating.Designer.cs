@@ -11,9 +11,10 @@ using System;
 namespace MovieApp.Migrations
 {
     [DbContext(typeof(MoviesContext))]
-    partial class MoviesContextModelSnapshot : ModelSnapshot
+    [Migration("20180528181405_AddedRating")]
+    partial class AddedRating
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,9 +83,6 @@ namespace MovieApp.Migrations
 
                     b.Property<int?>("FilmImageId");
 
-                    b.Property<string>("RatingCode")
-                        .HasMaxLength(45);
-
                     b.Property<int?>("RatingId");
 
                     b.Property<int?>("ReleaseYear")
@@ -99,9 +97,6 @@ namespace MovieApp.Migrations
                     b.HasKey("FilmId");
 
                     b.HasIndex("FilmImageId");
-
-                    b.HasIndex("RatingCode")
-                        .HasName("film_rating_index");
 
                     b.HasIndex("RatingId");
 
@@ -176,10 +171,10 @@ namespace MovieApp.Migrations
                     b.Property<int>("RatingId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Code")
-                        .IsRequired();
-
                     b.Property<string>("Name");
+
+                    b.Property<string>("RatingCode")
+                        .IsRequired();
 
                     b.HasKey("RatingId");
 

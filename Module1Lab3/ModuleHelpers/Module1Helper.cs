@@ -80,7 +80,7 @@ namespace MovieApp
             Console.WriteLine("Enter a Rating");
             var rating = Console.ReadLine();
 
-            var film = new Film { Title = title, Description = description, ReleaseYear = year, Rating = rating };
+            var film = new Film { Title = title, Description = description, ReleaseYear = year, RatingCode = rating };
 
             MoviesContext.Instance.Films.Add(film);
 
@@ -163,9 +163,9 @@ namespace MovieApp
                     film.ReleaseYear = releaseYear;
                 }
 
-                if (!string.IsNullOrWhiteSpace(rating) && film.Rating != rating)
+                if (!string.IsNullOrWhiteSpace(rating) && film.RatingCode != rating)
                 {
-                    film.Rating = rating;
+                    film.RatingCode = rating;
                 }
 
                 MoviesContext.Instance.SaveChanges();

@@ -129,7 +129,7 @@ namespace MovieApp
             Console.WriteLine("LINQ");
             var films = (from f in MoviesContext.Instance.Films
                          where f.Title.Contains(title) &&
-                            f.Rating == rating &&
+                            f.RatingCode == rating &&
                             f.ReleaseYear.HasValue &&
                             years.Contains(f.ReleaseYear.Value)
                          orderby f.ReleaseYear descending,
@@ -140,7 +140,7 @@ namespace MovieApp
             Console.WriteLine("Lambda");
             films = MoviesContext.Instance.Films
                         .Where(f => f.Title.Contains(title) &&
-                            f.Rating == rating &&
+                            f.RatingCode == rating &&
                             f.ReleaseYear.HasValue &&
                             years.Contains(f.ReleaseYear.Value))
                         .OrderByDescending(f => f.ReleaseYear)
@@ -205,13 +205,13 @@ namespace MovieApp
 
             Console.WriteLine("LINQ");
             var joinedFilms = (from f in MoviesContext.Instance.Films
-                         join r in ratings on f.Rating equals r.Code
+                         join r in ratings on f.RatingCode equals r.Code
                          select new { f.Title, r.Code, r.Name });
             ConsoleTable.From(joinedFilms).Write();
 
             Console.WriteLine("Lambda");
             joinedFilms = MoviesContext.Instance.Films.Join(ratings,
-                        f => f.Rating,
+                        f => f.RatingCode,
                         r => r.Code,
                         (f, r) => new { f.Title, r.Code, r.Name });
             ConsoleTable.From(joinedFilms).Write();

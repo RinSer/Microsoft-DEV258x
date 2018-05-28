@@ -15,6 +15,10 @@ namespace MovieApp.Entities
         public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
         // Added table with a composite key
         public virtual DbSet<FilmInfo> FilmInfos { get; set; }
+        // Added table for one to one relational entities
+        public virtual DbSet<FilmImage> FilmImages { get; set; }
+        // Added table for one to many relational entities
+        public virtual DbSet<Rating> Ratings { get; set; }
 
         private static MoviesContext _context;
         public static MoviesContext Instance
@@ -75,7 +79,7 @@ namespace MovieApp.Entities
 
                 entity.Property(e => e.Description).HasColumnType("text");
 
-                entity.Property(e => e.Rating).HasMaxLength(45);
+                entity.Property(e => e.RatingCode).HasMaxLength(45);
 
                 entity.Property(e => e.ReleaseYear).HasColumnType("int(11)");
 
@@ -83,7 +87,7 @@ namespace MovieApp.Entities
                     .IsRequired()
                     .HasMaxLength(255);
 
-                entity.HasIndex(e => e.Rating)
+                entity.HasIndex(e => e.RatingCode)
                     .HasName("film_rating_index");
             });
 
