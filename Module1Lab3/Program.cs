@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            Module3Helper.ManyToManyDelete();
+            Module3Helper.SelfAssessment();
         }
     }
 }

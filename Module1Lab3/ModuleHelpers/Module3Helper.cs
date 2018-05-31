@@ -255,5 +255,139 @@ namespace MovieApp
                         })
                         .First();
         }
+
+        /// Loading Lab
+        ///
+
+        public static void LazyLoadFilm()
+        {
+            var filmId = 4;
+            var film = MoviesContext.Instance.Films.Single(f => f.FilmId == filmId);
+            Console.WriteLine($"{film.FilmId} - {film.Title}");
+            MoviesContext.Instance.Entry(film).Collection(f => f.FilmActor).Load();
+            foreach (var filmActor in film.FilmActor)
+            {
+                MoviesContext.Instance.Entry(filmActor).Reference(fa => fa.Actor).Load();
+                Console.WriteLine($"\tfilm id: {filmActor.FilmId} actor id: {filmActor.ActorId}");
+                Console.WriteLine($"\t\tactor id: {filmActor.Actor.ActorId} - {filmActor.Actor.FirstName} {filmActor.Actor.LastName}");
+            }
+        }
+
+        public static void LazyLoadCategory()
+        {
+            var categories = MoviesContext.Instance.Categories;
+            foreach (var category in categories)
+            {
+                Console.WriteLine($"Category: {category.CategoryId} - {category.Name}");
+                MoviesContext.Instance.Entry(category).Collection(c => c.FilmCategory).Load();
+                if (category.FilmCategory.Any())
+                {
+                    foreach (var filmCategory in category.FilmCategory)
+                    {
+                        MoviesContext.Instance.Entry(filmCategory).Reference(fc => fc.Film).Load();
+                        Console.WriteLine($"\t{filmCategory.Film.FilmId} - {filmCategory.Film.Title}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("\tNo Films");
+                }
+            }
+        }
+
+        public static void EagerLoadFilm()
+        {
+            var filmId = 4;
+            var film = MoviesContext.Instance.Films
+                        .Include(f => f.FilmActor)
+                            .ThenInclude(fa => fa.Actor)
+                        .Single(f => f.FilmId == filmId);
+            Console.WriteLine($"{film.FilmId} - {film.Title}");
+            foreach (var filmActor in film.FilmActor)
+            {
+                Console.WriteLine($"\tfilm id: {filmActor.FilmId} actor id: {filmActor.ActorId}");
+                if (filmActor.Actor != null)
+                {
+                    Console.WriteLine($"\t\tactor id: {filmActor.Actor.ActorId} - {filmActor.Actor.FirstName} {filmActor.Actor.LastName}");
+                }
+            }
+        }
+
+        public static void EagerLoadCategory()
+        {
+            var categories = MoviesContext.Instance.Categories
+                    .Include(c => c.FilmCategory)
+                        .ThenInclude(fc => fc.Film);
+            foreach (var category in categories)
+            {
+                Console.WriteLine($"Category: {category.CategoryId} - {category.Name}");
+                MoviesContext.Instance.Entry(category).Collection(c => c.FilmCategory);
+                if (category.FilmCategory.Any())
+                {
+                    foreach (var filmCategory in category.FilmCategory)
+                    {
+                        MoviesContext.Instance.Entry(filmCategory).Reference(fc => fc.Film);
+                        Console.WriteLine($"\t{filmCategory.Film.FilmId} - {filmCategory.Film.Title}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("\tNo Films");
+                }
+            }
+        }
+
+        public static void SelfAssessment()
+        {
+            var ratingCode = "PG-13";
+            var rating = MoviesContext.Instance.Ratings
+                .Where(r => r.Code.Equals(ratingCode))
+                .Include(r => r.Films).FirstOrDefault();
+
+            foreach(var film in rating.Films)
+            {
+                if (film.ReleaseYear != null)
+                {
+                    if (film.ReleaseYear % 2 == 0)
+                        film.Title = film.Title.Insert(0, "even ");
+                    else
+                        film.Title = film.Title.Insert(0, "odd ");
+                }
+            }
+
+            MoviesContext.Instance.SaveChanges();
+
+            WriteFilmsByRatingCode(ratingCode);
+
+            foreach (var film in rating.Films)
+            {
+                if (film.ReleaseYear != null)
+                {
+                    if (film.ReleaseYear % 2 == 0)
+                        film.Title = film.Title.Replace("even ", "");
+                    else
+                        film.Title = film.Title.Replace("odd ", "");
+                }
+            }
+
+            MoviesContext.Instance.SaveChanges();
+
+            WriteFilmsByRatingCode(ratingCode);
+        }
+
+        public static void WriteFilmsByRatingCode(string ratingCode)
+        {
+            var rating = MoviesContext.Instance.Ratings
+                .Where(r => r.Code.Equals(ratingCode))
+                .Include(r => r.Films).FirstOrDefault();
+
+            Console.WriteLine(new string('~', 25));
+            Console.WriteLine($"Rating ID: {rating.RatingId}   Code: {rating.Code}    Name: {rating.Name}");
+            Console.WriteLine(new string('~', 25));
+            foreach (var film in rating.Films)
+            {
+                Console.WriteLine($"{film.FilmId}   {film.ReleaseYear}  {film.Title}");
+            }
+        }
     }
 }
