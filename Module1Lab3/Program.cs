@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            Module3Helper.SelfAssessment();
+            Module4Helper.SelfAssessment();
         }
     }
 }

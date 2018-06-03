@@ -1,6 +1,10 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace MovieApp.Entities
 {
@@ -21,6 +25,10 @@ namespace MovieApp.Entities
         public virtual DbSet<Rating> Ratings { get; set; }
 
         private static MoviesContext _context;
+
+        //public static readonly LoggerFactory MyLoggerFactory = new LoggerFactory(
+            //new[] { new ConsoleLoggerProvider((_, __) => true, true) });
+
         public static MoviesContext Instance
         {
             get
@@ -28,6 +36,9 @@ namespace MovieApp.Entities
                 if (_context == null)
                 {
                     _context = new MoviesContext();
+                    //var serviceProvider = _context.GetInfrastructure<IServiceProvider>();
+                    //var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+                    //loggerFactory.AddProvider(new ConsoleLoggerProvider((_, __) => true, true));
                 }
                 return _context;
             }
@@ -38,7 +49,9 @@ namespace MovieApp.Entities
             if (!optionsBuilder.IsConfigured)
             {
                 // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseMySql("server=localhost;userid=root;pwd=123456;port=3306;database=Movies;sslmode=none;");
+                optionsBuilder
+                    //.UseLoggerFactory(MyLoggerFactory)
+                    .UseMySql("server=localhost;userid=root;pwd=123456;port=3306;database=Movies;sslmode=none;");
             }
         }
 
